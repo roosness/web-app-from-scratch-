@@ -7,7 +7,6 @@ Moeilijker overdraagbaar aan andere developers. Zij moeten eerst het framework b
 Wordt vaak gebruikt waar het niet nodig is en is dus niet optimaal.
 Je weet niet altijd goed wat the library doet.
 
-speed
 
 ##voordelen
 Geoptimaliseerd om in alle gevallen te werken.
