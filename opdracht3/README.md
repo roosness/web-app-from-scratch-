@@ -4,8 +4,8 @@
 
 SEO is lastiger.
 Knoppen in de browser zoals back en geschiedenis doen het niet.
-speed
+Kan langzaam worden door grotere hoeveelheid data die doorgestuurd moet worden.
 
 ##voordelen
-Geen pagina laden. 
+Hoeft maar een keer een pagina te laden.
 
