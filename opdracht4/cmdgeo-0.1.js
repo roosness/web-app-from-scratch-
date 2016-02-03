@@ -27,7 +27,8 @@
         intervalCounter:false,
         updateMap:false,
         locatieRij:[],
-        markerRij:[]
+        markerRij:[],
+        ET = new EventTarget();
 
 
     var positionFunctions = {
@@ -96,7 +97,7 @@
         }
     }
 
-    var ET = new EventTarget();
+
 
     customDebugging = debugId
 
