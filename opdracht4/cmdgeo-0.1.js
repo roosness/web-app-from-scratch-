@@ -13,13 +13,12 @@
 
 (function(){
 
-    var  SANDBOX: 'SANDBOX',
+    var SANDBOX: 'SANDBOX',
         LINEAIR : "LINEAIR",
         GPS_AVAILABLE : 'GPS_AVAILABLE',
         GPS_UNAVAILABLE : 'GPS_UNAVAILABLE',
         POSITION_UPDATED : 'POSITION_UPDATED',
         REFRESH_RATE : 1000;
-    }
 
     var currentPosition :false,
         currentPositionMarker:false,
