@@ -13,25 +13,28 @@
 
 (function(){
 
-    var SANDBOX: 'SANDBOX',
-        LINEAIR : "LINEAIR",
-        GPS_AVAILABLE : 'GPS_AVAILABLE',
-        GPS_UNAVAILABLE : 'GPS_UNAVAILABLE',
-        POSITION_UPDATED : 'POSITION_UPDATED',
-        REFRESH_RATE : 1000;
+    var sandbox = "sandbox";
+    var linear = "linear";
+    var gpsAvailable = 'gpsAvailable';
+    var gpsUnavailable = 'gpsUnavailable';
+    var positionUpdated = 'positionUpdated';
+    var refreshRate = 1000;
+    var currentPosition = false;
+    var currentPositionMarker = false;
+    var customDebugging = false;
+    var debugId = false;
+    var map = false;
+    var interval = false;
+    var intervalCounter = false;
+    var updateMap = false;
 
-    var currentPosition :false,
-        currentPositionMarker:false,
-        map:false,
-        interval:false,
-        intervalCounter:false,
-        updateMap:false,
-        locatieRij:[],
-        markerRij:[],
-        ET = new EventTarget();
+    var locations = []; 
+    var markers = [];
+
+    var ET = new EventTarget();
 
 
-    var positionFunctions = {
+    var map = {
         // Test of GPS beschikbaar is (via geo.js) en vuur een event af
         init: function (){
             debug_message("Controleer of GPS beschikbaar is...");
@@ -43,7 +46,7 @@
         },
 
         // Start een interval welke op basis van REFRESH_RATE de positie updated
-        _start_interval: function (event){
+        startInterval: function (event){
             debug_message("GPS is beschikbaar, vraag positie.");
             this._update_position();
             interval = self.setInterval(this._update_position, REFRESH_RATE);
@@ -51,20 +54,20 @@
         },
 
         // Vraag de huidige positie aan geo.js, stel een callback in voor het resultaat
-        _update_position: function (){
+        updatePosition: function (){
             intervalCounter++;
             geo_position_js.getCurrentPosition(this._set_position, debugging._geo_error_handler, {enableHighAccuracy:true});
         },
 
         // Callback functie voor het instellen van de huidige positie, vuurt een event af
-        _set_position: function (position){
+        setPosition: function (position){
             currentPosition = position;
             ET.fire("POSITION_UPDATED");
             debug_message(intervalCounter+" positie lat:"+position.coords.latitude+" long:"+position.coords.longitude);
         },
 
         // Controleer de locaties en verwijs naar een andere pagina als we op een locatie zijn
-        _check_locations: function (event){
+        checkLocations: function (event){
             // Liefst buiten google maps om... maar helaas, ze hebben alle coole functies
             for (var i = 0; i < locaties.length; i++) {
                 var locatie = {coords:{latitude: locaties[i][3],longitude: locaties[i][4]}};
@@ -90,12 +93,20 @@
         },
 
         // Bereken het verchil in meters tussen twee punten
-        _calculate_distance: function (p1, p2){
+        calculateDistance: function (p1, p2){
             var pos1 = new google.maps.LatLng(p1.coords.latitude, p1.coords.longitude);
             var pos2 = new google.maps.LatLng(p2.coords.latitude, p2.coords.longitude);
             return Math.round(google.maps.geometry.spherical.computeDistanceBetween(pos1, pos2), 0);
+        },
+        
+        // Update de positie van de gebruiker op de kaart
+        updateCurrentPosition:function (event){
+            // use currentPosition to center the map
+            var newPos = new google.maps.LatLng(currentPosition.coords.latitude, currentPosition.coords.longitude);
+            map.setCenter(newPos);
+            currentPositionMarker.setPosition(newPos);
         }
-    }
+    };
 
 
 
@@ -174,20 +185,15 @@
 
             // Zorg dat de kaart geupdated wordt als het POSITION_UPDATED event afgevuurd wordt
             ET.addListener(constants.POSITION_UPDATED, this.update_positie);
-        },
-
-        isNumber: function (n) {
-          return !isNaN(parseFloat(n)) && isFinite(n);
-        },
-
-        // Update de positie van de gebruiker op de kaart
-        update_positie:function (event){
-            // use currentPosition to center the map
-            var newPos = new google.maps.LatLng(currentPosition.coords.latitude, currentPosition.coords.longitude);
-            map.setCenter(newPos);
-            currentPositionMarker.setPosition(newPos);
         }
     }
+    
+    var utils = {
+        isNumber: function (n) {
+          return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+    };
+    
     // FUNCTIES VOOR DEBUGGING
     var debugging = {
         _geo_error_handler: function (code, message) {
@@ -200,7 +206,8 @@
             debugId = this.debugId;
             customDebugging = true;
         }
-    }
+    };
+    
 })
 
 
