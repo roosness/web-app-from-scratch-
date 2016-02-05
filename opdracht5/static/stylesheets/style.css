@@ -1,0 +1,8 @@
+section {
+	transition:1s;
+	position: absolute;
+}
+.hidden {
+	opacity: 0;
+	z-index: -2;
+}
