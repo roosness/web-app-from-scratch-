@@ -37,7 +37,7 @@
     var map = {
         // Test of GPS beschikbaar is (via geo.js) en vuur een event af
         init: function (){
-            debug_message("Controleer of GPS beschikbaar is...");
+            debugMessage("Controleer of GPS beschikbaar is...");
 
             ET.addListener(GPS_AVAILABLE, this._start_interval);
             ET.addListener(GPS_UNAVAILABLE, function(){debug_message('GPS is niet beschikbaar.')});
@@ -47,8 +47,8 @@
 
         // Start een interval welke op basis van REFRESH_RATE de positie updated
         startInterval: function (event){
-            debug_message("GPS is beschikbaar, vraag positie.");
-            this._update_position();
+            debugMessage("GPS is beschikbaar, vraag positie.");
+            this.updatePosition();
             interval = self.setInterval(this._update_position, REFRESH_RATE);
             ET.addListener(POSITION_UPDATED, this._check_locations);
         },
@@ -56,7 +56,7 @@
         // Vraag de huidige positie aan geo.js, stel een callback in voor het resultaat
         updatePosition: function (){
             intervalCounter++;
-            geo_position_js.getCurrentPosition(this._set_position, debugging._geo_error_handler, {enableHighAccuracy:true});
+            geo_position_js.getCurrentPosition(this.setPosition, debugging.geoErrorHandler, {enableHighAccuracy:true});
         },
 
         // Callback functie voor het instellen van de huidige positie, vuurt een event af
@@ -72,7 +72,7 @@
             for (var i = 0; i < locaties.length; i++) {
                 var locatie = {coords:{latitude: locaties[i][3],longitude: locaties[i][4]}};
 
-                if(this._calculate_distance(locatie, currentPosition)<locaties[i][2]){
+                if(this.calculateDistance(locatie, currentPosition)<locaties[i][2]){
 
                     // Controle of we NU op die locatie zijn, zo niet gaan we naar de betreffende page
                     if(window.location!=locaties[i][1] && localStorage[locaties[i][0]]=="false"){
@@ -80,13 +80,13 @@
                         try {
                             (localStorage[locaties[i][0]]=="false")?localStorage[locaties[i][0]]=1:localStorage[locaties[i][0]]++;
                         } catch(error) {
-                            debug_message("Localstorage kan niet aangesproken worden: "+error);
+                            debugMessage("Localstorage kan niet aangesproken worden: "+error);
                         }
 
         // TODO: Animeer de betreffende marker
 
                         window.location = locaties[i][1];
-                        debug_message("Speler is binnen een straal van "+ locaties[i][2] +" meter van "+locaties[i][0]);
+                        debugMessage("Speler is binnen een straal van "+ locaties[i][2] +" meter van "+locaties[i][0]);
                     }
                 }
             }
@@ -109,10 +109,6 @@
     };
 
 
-
-    customDebugging = debugId
-
-
     // GOOGLE MAPS FUNCTIES
     /**
      * generate_map(myOptions, canvasId)
@@ -127,21 +123,21 @@
      *      kaart in ge-rendered moet worden, <div> of <canvas>
      */
     var mapsFunctions = {
-        generate_map: function (myOptions, canvasId){
+        generateMap: function (myOptions, canvasId){
         // TODO: Kan ik hier asynchroon nog de google maps api aanroepen? dit scheelt calls
             debug_message("Genereer een Google Maps kaart en toon deze in #"+canvasId)
             map = new google.maps.Map(document.getElementById(canvasId), myOptions);
 
             var routeList = [];
             // Voeg de markers toe aan de map afhankelijk van het tourtype
-            debug_message("Locaties intekenen, tourtype is: "+tourType);
+            debugMessage("Locaties intekenen, tourtype is: "+tourType);
             for (var i = 0; i < locaties.length; i++) {
 
                 // Met kudos aan Tomas Harkema, probeer local storage, als het bestaat, voeg de locaties toe
                 try {
                     (localStorage.visited==undefined||this.isNumber(localStorage.visited))?localStorage[locaties[i][0]]=false:null;
                 } catch (error) {
-                    debug_message("Localstorage kan niet aangesproken worden: "+error);
+                    debugMessage("Localstorage kan niet aangesproken worden: "+error);
                 }
 
                 var markerLatLng = new google.maps.LatLng(locaties[i][3], locaties[i][4]);
@@ -184,7 +180,7 @@
             });
 
             // Zorg dat de kaart geupdated wordt als het POSITION_UPDATED event afgevuurd wordt
-            ET.addListener(constants.POSITION_UPDATED, this.update_positie);
+            ET.addListener(PositionUpdated, this.updatePosition);
         }
     }
     
@@ -196,13 +192,13 @@
     
     // FUNCTIES VOOR DEBUGGING
     var debugging = {
-        _geo_error_handler: function (code, message) {
-            this.debug_message('geo.js error '+code+': '+message);
+        geoErrorHandler: function (code, message) {
+            this.debugMessage('geo.js error '+code+': '+message);
         },
-        debug_message: function (message){
+        debugMessage: function (message){
             (customDebugging && debugId)?document.getElementById(debugId).innerHTML:console.log(message);
         },
-        set_custom_debugging: function (debugId){
+        setCustomDebugging: function (debugId){
             debugId = this.debugId;
             customDebugging = true;
         }
